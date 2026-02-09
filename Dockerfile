@@ -1,4 +1,4 @@
-FROM debian:13.1
+FROM debian:13.3
 
 ARG user=jenkins
 ARG group=jenkins
