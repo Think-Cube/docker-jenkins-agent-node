@@ -1,32 +1,25 @@
-FROM debian:13.1
+FROM node:26.13.1-trixie-slim@sha256:e6bedef217677b276c591795e169840edd9096dbf13f29df8ef8d1856b8820bc AS node
 
-ARG user=jenkins
-ARG group=jenkins
-ARG uid=1000
-ARG gid=1000
-ARG JENKINS_AGENT_HOME=/home/${user}
+FROM jenkins/ssh-agent:9.5.0-jdk21@sha256:78ade73b7e8ff8b5b84a016f6a1afc9f98362908bf2f43643a42c599a8f3bd1c
 
-ENV JENKINS_AGENT_HOME=${JENKINS_AGENT_HOME}
+LABEL org.opencontainers.image.title="jenkins-agent-node" \
+      org.opencontainers.image.description="Jenkins SSH build agent with Java and Node.js LTS" \
+      org.opencontainers.image.vendor="Think-Cube" \
+      org.opencontainers.image.authors="contact@thinkcube.dev" \
+      org.opencontainers.image.licenses="MIT"
 
-RUN groupadd -g ${gid} ${group} \
-    && useradd -d "${JENKINS_AGENT_HOME}" -u "${uid}" -g "${gid}" -m -s /bin/bash "${user}"
+# The upgrade is what lets the weekly rebuild pick up security patches
+# while the base image stays pinned by digest.
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
+    rm -rf /var/lib/apt/lists/*
 
-# Setup SSH server
-RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y openssh-server \
-    && rm -rf /var/lib/apt/lists/* \
-    && mkdir -p /var/run/sshd /run/sshd
+# Both images are built on Debian trixie, so the Node.js binary finds the same libraries here.
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 
-RUN sed -i -e 's/#PermitRootLogin.*/PermitRootLogin no/' \
-           -e 's/#RSAAuthentication.*/RSAAuthentication yes/' \
-           -e 's/#PasswordAuthentication.*/PasswordAuthentication no/' \
-           -e 's/#SyslogFacility.*/SyslogFacility AUTH/' \
-           -e 's/#LogLevel.*/LogLevel INFO/' /etc/ssh/sshd_config
-
-VOLUME ["${JENKINS_AGENT_HOME}", "/tmp", "/run", "/var/run"]
-WORKDIR "${JENKINS_AGENT_HOME}"
-
-COPY setup-sshd /usr/local/bin/setup-sshd
-
-EXPOSE 22
-ENTRYPOINT ["setup-sshd"]
+RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && \
+    ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx && \
+    ln -s ../lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack && \
+    node --version && \
+    npm --version
