@@ -29,7 +29,6 @@ agent java -version
 agent node --version
 agent npm --version
 agent npx --version
-agent corepack --version
 agent git --version
 agent git lfs version
 

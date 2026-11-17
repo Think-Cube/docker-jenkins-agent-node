@@ -21,7 +21,7 @@ For production, pin by digest: `ghcr.io/think-cube/jenkins-agent-node:1.0.0@sha2
 ## What is in the image
 
 - Java runtime, SSH server, `git` and `git-lfs` from `jenkins/ssh-agent`
-- Node.js LTS with `npm`, `npx` and `corepack`
+- Node.js LTS with `npm` and `npx`
 
 The exact versions are on the `FROM` lines of the `Dockerfile`. A new major Node.js line is adopted deliberately, in a new major version of this image.
 
