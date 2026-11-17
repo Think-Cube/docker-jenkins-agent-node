@@ -9,12 +9,14 @@ LABEL org.opencontainers.image.title="jenkins-agent-node" \
       org.opencontainers.image.licenses="MIT"
 
 # The upgrade is what lets the weekly rebuild pick up security patches
-# while the base image stays pinned by digest.
+# while the base image stays pinned by digest. Node.js needs libatomic1,
+# which jenkins/ssh-agent does not ship.
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libatomic1 && \
     rm -rf /var/lib/apt/lists/*
 
-# Both images are built on Debian trixie, so the Node.js binary finds the same libraries here.
+# Both images are built on Debian trixie, so the remaining libraries Node.js needs are already here.
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 
