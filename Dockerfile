@@ -1,6 +1,6 @@
 FROM node:26.13.1-trixie-slim@sha256:e6bedef217677b276c591795e169840edd9096dbf13f29df8ef8d1856b8820bc AS node
 
-FROM jenkins/ssh-agent:9.5.0-jdk21@sha256:78ade73b7e8ff8b5b84a016f6a1afc9f98362908bf2f43643a42c599a8f3bd1c
+FROM jenkins/ssh-agent:9.8.0-jdk21@sha256:8fbbc589fa4257287cb9903ed1e021b90db2be2827a80e86a433d9395ca7d019
 
 LABEL org.opencontainers.image.title="jenkins-agent-node" \
       org.opencontainers.image.description="Jenkins SSH build agent with Java and Node.js LTS" \
