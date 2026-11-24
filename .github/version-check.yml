@@ -1,0 +1,9 @@
+# Versions Dependabot does not track; checked weekly by .github/workflows/version-check.yml.
+checks:
+  - name: Node.js LTS line
+    file: Dockerfile
+    pattern: 'FROM node:(\d+)\.'
+    source: docker-hub
+    repository: library/node
+    tag-pattern: '(\d*[02468])\.\d+\.\d+-trixie-slim'
+    note: Dependabot stays on the current Node.js major. Even-numbered majors become LTS in October; move to the new line then, in a new major version of the image.
